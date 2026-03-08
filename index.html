@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive Feature Matrix — Compare Products Side by Side</title>
+    <meta name="description"
+        content="Build interactive competitive analysis matrices. Compare products, rate features, and identify market gaps instantly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --surface-2: #1a1a26;
+            --surface-3: #22222e;
+            --border: #2a2a3a;
+            --border-hover: #3a3a4f;
+            --text: #f5f5fa;
+            --text-muted: #a8a8c0;
+            --text-dim: #7878a0;
+            --accent: #8b5cf6;
+            --accent-hover: #a78bfa;
+            --accent-soft: rgba(139, 92, 246, 0.1);
+            --accent-border: rgba(139, 92, 246, 0.3);
+            --green: #34d399;
+            --yellow: #fbbf24;
+            --red: #f87171;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Nav */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav .inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .logo span {
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 56px 24px 40px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent-border);
+            color: var(--accent-hover);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text), var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 15px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--surface-3);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn.danger:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* Table Container */
+        .table-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--surface-2);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            position: sticky;
+            top: 56px;
+            z-index: 10;
+        }
+
+        th:first-child {
+            min-width: 200px;
+        }
+
+        th:not(:first-child) {
+            min-width: 140px;
+            text-align: center;
+        }
+
+        td:not(:first-child) {
+            text-align: center;
+        }
+
+        /* Feature name cell */
+        .feature-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .feature-name .remove-feature {
+            opacity: 0;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        tr:hover .remove-feature {
+            opacity: 1;
+        }
+
+        .remove-feature:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        /* Competitor header */
+        .comp-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .comp-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .comp-remove {
+            font-size: 10px;
+            color: var(--text-dim);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .comp-remove:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        /* Rating buttons */
+        .rating-cell {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .rating-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            opacity: 0.4;
+        }
+
+        .rating-btn:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .rating-btn.active {
+            opacity: 1;
+            transform: scale(1.05);
+            border-color: transparent;
+        }
+
+        .rating-btn.active.yes {
+            background: rgba(52, 211, 153, 0.15);
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .rating-btn.active.partial {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        .rating-btn.active.no {
+            background: rgba(248, 113, 113, 0.15);
+            border-color: rgba(248, 113, 113, 0.3);
+        }
+
+        /* Score row */
+        .score-row td {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            font-size: 14px;
+            border-bottom: none;
+        }
+
+        .score-row td:first-child {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .score-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--surface-3);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Gap Analysis */
+        .gap-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        .gap-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .gap-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gap-title .icon {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent-border);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .gap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .gap-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+        }
+
+        .gap-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .gap-dot.opportunity {
+            background: var(--green);
+        }
+
+        .gap-dot.risk {
+            background: var(--red);
+        }
+
+        .gap-text {
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .gap-highlight {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .gap-empty {
+            color: var(--text-dim);
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Editable */
+        .editable {
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            padding: 0;
+            outline: none;
+            width: 100%;
+        }
+
+        .editable:focus {
+            border-bottom: 1px dashed var(--accent);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            width: 360px;
+        }
+
+        .modal h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .modal input {
+            width: 100%;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            padding: 10px 14px;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .modal input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeUp 0.4s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            th,
+            td {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="inner">
+            <a href="#" class="logo">Feature <span>Matrix</span></a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-badge">⚔️ Competitive Analysis</div>
+        <h1>Compare products, find gaps,<br>win the market</h1>
+        <p>Type a company name — features auto-populate based on industry. Rate each product and get instant gap
+            analysis.</p>
+    </div>
+
+    <!-- Industry badge -->
+    <div id="industryBadge" style="display:none;max-width:1200px;margin:0 auto;padding:0 24px 12px;">
+        <span
+            style="display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent-hover);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;">
+            <span id="industryIcon"></span> <span id="industryName"></span> — <span id="industryFeatureCount"
+                style="color:var(--text-muted);font-weight:400;"></span>
+        </span>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn primary" onclick="showModal('competitor')">+ Add Competitor</button>
+        <button class="btn" onclick="showModal('feature')">+ Add Feature</button>
+        <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn" onclick="clearAll()">🗑 Clear</button>
+    </div>
+
+    <div class="table-wrap">
+        <table id="matrix"></table>
+    </div>
+
+    <div class="gap-section">
+        <div class="gap-panel">
+            <div class="gap-title">
+                <div class="icon">💡</div> Gap Analysis
+            </div>
+            <div class="gap-list" id="gapList">
+                <div class="gap-empty">Add competitors and features to see gap analysis</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal with autocomplete -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal" style="overflow:visible;">
+            <h3 id="modalTitle">Add Competitor</h3>
+            <div style="position:relative;">
+                <input type="text" id="modalInput" placeholder="Name" autocomplete="off">
+                <div id="autocomplete"
+                    style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface-2);border:1px solid var(--border);border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:10;">
+                </div>
+            </div>
+            <div id="modalHint" style="font-size:11px;color:var(--text-dim);margin-bottom:12px;display:none;"></div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn primary" id="modalSubmit" onclick="submitModal()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // KNOWLEDGE BASE — companies, industries, features, ratings
+        // ═══════════════════════════════════════════════════════════
+
+        const INDUSTRIES = {
+            'project_management': {
+                name: 'Project Management', icon: '📋',
+                features: ['Task management', 'Timeline / Gantt', 'Kanban boards', 'Sprint planning', 'Time tracking', 'Resource management', 'Custom workflows', 'Reporting & dashboards', 'Integrations', 'Mobile app', 'API access', 'Guest access', 'Automations', 'File storage', 'Comments & mentions'],
+            },
+            'communication': {
+                name: 'Team Communication', icon: '💬',
+                features: ['Real-time messaging', 'Channels / groups', 'Thread replies', 'Video calls', 'Screen sharing', 'File sharing', 'Search history', 'Integrations', 'Mobile app', 'Guest access', 'SSO / SAML', 'Message scheduling', 'Huddles / audio', 'Custom emoji', 'API access'],
+            },
+            'crm': {
+                name: 'CRM & Sales', icon: '🤝',
+                features: ['Contact management', 'Deal pipeline', 'Email tracking', 'Lead scoring', 'Sales automation', 'Reporting & forecasting', 'Integrations', 'Mobile app', 'API access', 'Custom fields', 'Workflow automation', 'Email templates', 'Call logging', 'Territory management', 'AI assistant'],
+            },
+            'design': {
+                name: 'Design & Prototyping', icon: '🎨',
+                features: ['Vector editing', 'Prototyping', 'Component library', 'Design tokens', 'Auto-layout', 'Real-time collaboration', 'Developer handoff', 'Version history', 'Plugins / extensions', 'Responsive design', 'Design system support', 'Comments & feedback', 'Export formats', 'Branching', 'AI features'],
+            },
+            'analytics': {
+                name: 'Analytics & Data', icon: '📊',
+                features: ['Web analytics', 'Event tracking', 'Funnel analysis', 'User segmentation', 'A/B testing', 'Heatmaps', 'Session replay', 'Custom dashboards', 'Real-time data', 'Data export', 'API access', 'Privacy compliance', 'Mobile analytics', 'Cohort analysis', 'Integrations'],
+            },
+            'email_marketing': {
+                name: 'Email Marketing', icon: '📧',
+                features: ['Drag-and-drop editor', 'Email automation', 'Segmentation', 'A/B testing', 'Landing pages', 'Signup forms', 'Analytics & reporting', 'Personalization', 'Transactional email', 'SMS marketing', 'CRM integration', 'Template library', 'List management', 'Deliverability tools', 'API access'],
+            },
+            'cloud_storage': {
+                name: 'Cloud Storage & Docs', icon: '☁️',
+                features: ['File storage', 'File sharing', 'Real-time collaboration', 'Version history', 'Offline access', 'Search', 'Third-party integrations', 'Mobile app', 'Admin controls', 'SSO / SAML', 'API access', 'E-signatures', 'Commenting', 'Encryption at rest', 'Compliance certifications'],
+            },
+            'video': {
+                name: 'Video Conferencing', icon: '📹',
+                features: ['Video calls', 'Screen sharing', 'Recording', 'Breakout rooms', 'Virtual backgrounds', 'Live captions', 'Whiteboard', 'Calendar integration', 'Waiting room', 'Chat in meeting', 'Webinar mode', 'Mobile app', 'SSO / SAML', 'AI summaries', 'Noise cancellation'],
+            },
+        };
+
+        const COMPANY_DB = {
+            // Project Management
+            'Asana': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'yes', 'Kanban boards': 'yes', 'Sprint planning': 'partial', 'Time tracking': 'partial', 'Resource management': 'yes', 'Custom workflows': 'yes', 'Reporting & dashboards': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'yes', 'Automations': 'yes', 'File storage': 'partial', 'Comments & mentions': 'yes' } },
+            'Monday.com': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'yes', 'Kanban boards': 'yes', 'Sprint planning': 'partial', 'Time tracking': 'yes', 'Resource management': 'yes', 'Custom workflows': 'yes', 'Reporting & dashboards': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'yes', 'Automations': 'yes', 'File storage': 'partial', 'Comments & mentions': 'yes' } },
+            'Jira': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'partial', 'Kanban boards': 'yes', 'Sprint planning': 'yes', 'Time tracking': 'partial', 'Resource management': 'partial', 'Custom workflows': 'yes', 'Reporting & dashboards': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'partial', 'Automations': 'yes', 'File storage': 'no', 'Comments & mentions': 'yes' } },
+            'Trello': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'partial', 'Kanban boards': 'yes', 'Sprint planning': 'no', 'Time tracking': 'no', 'Resource management': 'no', 'Custom workflows': 'partial', 'Reporting & dashboards': 'partial', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'yes', 'Automations': 'partial', 'File storage': 'partial', 'Comments & mentions': 'yes' } },
+            'ClickUp': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'yes', 'Kanban boards': 'yes', 'Sprint planning': 'yes', 'Time tracking': 'yes', 'Resource management': 'yes', 'Custom workflows': 'yes', 'Reporting & dashboards': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'yes', 'Automations': 'yes', 'File storage': 'yes', 'Comments & mentions': 'yes' } },
+            'Linear': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'partial', 'Kanban boards': 'yes', 'Sprint planning': 'yes', 'Time tracking': 'no', 'Resource management': 'partial', 'Custom workflows': 'yes', 'Reporting & dashboards': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'partial', 'Automations': 'yes', 'File storage': 'no', 'Comments & mentions': 'yes' } },
+            'Notion': { industry: 'project_management', ratings: { 'Task management': 'yes', 'Timeline / Gantt': 'partial', 'Kanban boards': 'yes', 'Sprint planning': 'partial', 'Time tracking': 'no', 'Resource management': 'no', 'Custom workflows': 'partial', 'Reporting & dashboards': 'partial', 'Integrations': 'partial', 'Mobile app': 'yes', 'API access': 'yes', 'Guest access': 'yes', 'Automations': 'partial', 'File storage': 'yes', 'Comments & mentions': 'yes' } },
+
+            // Communication
+            'Slack': { industry: 'communication', ratings: { 'Real-time messaging': 'yes', 'Channels / groups': 'yes', 'Thread replies': 'yes', 'Video calls': 'yes', 'Screen sharing': 'yes', 'File sharing': 'yes', 'Search history': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'Guest access': 'yes', 'SSO / SAML': 'yes', 'Message scheduling': 'yes', 'Huddles / audio': 'yes', 'Custom emoji': 'yes', 'API access': 'yes' } },
+            'Microsoft Teams': { industry: 'communication', ratings: { 'Real-time messaging': 'yes', 'Channels / groups': 'yes', 'Thread replies': 'yes', 'Video calls': 'yes', 'Screen sharing': 'yes', 'File sharing': 'yes', 'Search history': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'Guest access': 'yes', 'SSO / SAML': 'yes', 'Message scheduling': 'partial', 'Huddles / audio': 'yes', 'Custom emoji': 'partial', 'API access': 'yes' } },
+            'Discord': { industry: 'communication', ratings: { 'Real-time messaging': 'yes', 'Channels / groups': 'yes', 'Thread replies': 'yes', 'Video calls': 'yes', 'Screen sharing': 'yes', 'File sharing': 'yes', 'Search history': 'partial', 'Integrations': 'partial', 'Mobile app': 'yes', 'Guest access': 'yes', 'SSO / SAML': 'no', 'Message scheduling': 'no', 'Huddles / audio': 'yes', 'Custom emoji': 'yes', 'API access': 'yes' } },
+            'Google Chat': { industry: 'communication', ratings: { 'Real-time messaging': 'yes', 'Channels / groups': 'yes', 'Thread replies': 'yes', 'Video calls': 'partial', 'Screen sharing': 'no', 'File sharing': 'yes', 'Search history': 'yes', 'Integrations': 'partial', 'Mobile app': 'yes', 'Guest access': 'partial', 'SSO / SAML': 'yes', 'Message scheduling': 'no', 'Huddles / audio': 'no', 'Custom emoji': 'partial', 'API access': 'partial' } },
+
+            // CRM
+            'Salesforce': { industry: 'crm', ratings: { 'Contact management': 'yes', 'Deal pipeline': 'yes', 'Email tracking': 'yes', 'Lead scoring': 'yes', 'Sales automation': 'yes', 'Reporting & forecasting': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Custom fields': 'yes', 'Workflow automation': 'yes', 'Email templates': 'yes', 'Call logging': 'yes', 'Territory management': 'yes', 'AI assistant': 'yes' } },
+            'HubSpot': { industry: 'crm', ratings: { 'Contact management': 'yes', 'Deal pipeline': 'yes', 'Email tracking': 'yes', 'Lead scoring': 'yes', 'Sales automation': 'yes', 'Reporting & forecasting': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Custom fields': 'yes', 'Workflow automation': 'yes', 'Email templates': 'yes', 'Call logging': 'yes', 'Territory management': 'partial', 'AI assistant': 'yes' } },
+            'Pipedrive': { industry: 'crm', ratings: { 'Contact management': 'yes', 'Deal pipeline': 'yes', 'Email tracking': 'yes', 'Lead scoring': 'partial', 'Sales automation': 'yes', 'Reporting & forecasting': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Custom fields': 'yes', 'Workflow automation': 'yes', 'Email templates': 'yes', 'Call logging': 'yes', 'Territory management': 'no', 'AI assistant': 'partial' } },
+            'Zoho CRM': { industry: 'crm', ratings: { 'Contact management': 'yes', 'Deal pipeline': 'yes', 'Email tracking': 'yes', 'Lead scoring': 'yes', 'Sales automation': 'yes', 'Reporting & forecasting': 'yes', 'Integrations': 'yes', 'Mobile app': 'yes', 'API access': 'yes', 'Custom fields': 'yes', 'Workflow automation': 'yes', 'Email templates': 'yes', 'Call logging': 'yes', 'Territory management': 'yes', 'AI assistant': 'partial' } },
+            'Close': { industry: 'crm', ratings: { 'Contact management': 'yes', 'Deal pipeline': 'yes', 'Email tracking': 'yes', 'Lead scoring': 'partial', 'Sales automation': 'yes', 'Reporting & forecasting': 'yes', 'Integrations': 'partial', 'Mobile app': 'partial', 'API access': 'yes', 'Custom fields': 'yes', 'Workflow automation': 'yes', 'Email templates': 'yes', 'Call logging': 'yes', 'Territory management': 'no', 'AI assistant': 'no' } },
+
+            // Design
+            'Figma': { industry: 'design', ratings: { 'Vector editing': 'yes', 'Prototyping': 'yes', 'Component library': 'yes', 'Design tokens': 'yes', 'Auto-layout': 'yes', 'Real-time collaboration': 'yes', 'Developer handoff': 'yes', 'Version history': 'yes', 'Plugins / extensions': 'yes', 'Responsive design': 'yes', 'Design system support': 'yes', 'Comments & feedback': 'yes', 'Export formats': 'yes', 'Branching': 'yes', 'AI features': 'yes' } },
+            'Sketch': { industry: 'design', ratings: { 'Vector editing': 'yes', 'Prototyping': 'partial', 'Component library': 'yes', 'Design tokens': 'partial', 'Auto-layout': 'partial', 'Real-time collaboration': 'partial', 'Developer handoff': 'yes', 'Version history': 'yes', 'Plugins / extensions': 'yes', 'Responsive design': 'partial', 'Design system support': 'yes', 'Comments & feedback': 'partial', 'Export formats': 'yes', 'Branching': 'no', 'AI features': 'no' } },
+            'Adobe XD': { industry: 'design', ratings: { 'Vector editing': 'yes', 'Prototyping': 'yes', 'Component library': 'yes', 'Design tokens': 'partial', 'Auto-layout': 'partial', 'Real-time collaboration': 'yes', 'Developer handoff': 'yes', 'Version history': 'yes', 'Plugins / extensions': 'yes', 'Responsive design': 'partial', 'Design system support': 'partial', 'Comments & feedback': 'yes', 'Export formats': 'yes', 'Branching': 'no', 'AI features': 'no' } },
+            'Framer': { industry: 'design', ratings: { 'Vector editing': 'partial', 'Prototyping': 'yes', 'Component library': 'yes', 'Design tokens': 'partial', 'Auto-layout': 'yes', 'Real-time collaboration': 'yes', 'Developer handoff': 'partial', 'Version history': 'yes', 'Plugins / extensions': 'partial', 'Responsive design': 'yes', 'Design system support': 'partial', 'Comments & feedback': 'yes', 'Export formats': 'partial', 'Branching': 'no', 'AI features': 'yes' } },
+
+            // Analytics
+            'Google Analytics': { industry: 'analytics', ratings: { 'Web analytics': 'yes', 'Event tracking': 'yes', 'Funnel analysis': 'yes', 'User segmentation': 'yes', 'A/B testing': 'partial', 'Heatmaps': 'no', 'Session replay': 'no', 'Custom dashboards': 'yes', 'Real-time data': 'yes', 'Data export': 'yes', 'API access': 'yes', 'Privacy compliance': 'partial', 'Mobile analytics': 'yes', 'Cohort analysis': 'yes', 'Integrations': 'yes' } },
+            'Mixpanel': { industry: 'analytics', ratings: { 'Web analytics': 'yes', 'Event tracking': 'yes', 'Funnel analysis': 'yes', 'User segmentation': 'yes', 'A/B testing': 'yes', 'Heatmaps': 'no', 'Session replay': 'no', 'Custom dashboards': 'yes', 'Real-time data': 'yes', 'Data export': 'yes', 'API access': 'yes', 'Privacy compliance': 'yes', 'Mobile analytics': 'yes', 'Cohort analysis': 'yes', 'Integrations': 'yes' } },
+            'Amplitude': { industry: 'analytics', ratings: { 'Web analytics': 'yes', 'Event tracking': 'yes', 'Funnel analysis': 'yes', 'User segmentation': 'yes', 'A/B testing': 'yes', 'Heatmaps': 'no', 'Session replay': 'yes', 'Custom dashboards': 'yes', 'Real-time data': 'yes', 'Data export': 'yes', 'API access': 'yes', 'Privacy compliance': 'yes', 'Mobile analytics': 'yes', 'Cohort analysis': 'yes', 'Integrations': 'yes' } },
+            'Hotjar': { industry: 'analytics', ratings: { 'Web analytics': 'partial', 'Event tracking': 'partial', 'Funnel analysis': 'partial', 'User segmentation': 'partial', 'A/B testing': 'no', 'Heatmaps': 'yes', 'Session replay': 'yes', 'Custom dashboards': 'partial', 'Real-time data': 'partial', 'Data export': 'yes', 'API access': 'partial', 'Privacy compliance': 'yes', 'Mobile analytics': 'partial', 'Cohort analysis': 'no', 'Integrations': 'partial' } },
+            'PostHog': { industry: 'analytics', ratings: { 'Web analytics': 'yes', 'Event tracking': 'yes', 'Funnel analysis': 'yes', 'User segmentation': 'yes', 'A/B testing': 'yes', 'Heatmaps': 'partial', 'Session replay': 'yes', 'Custom dashboards': 'yes', 'Real-time data': 'yes', 'Data export': 'yes', 'API access': 'yes', 'Privacy compliance': 'yes', 'Mobile analytics': 'yes', 'Cohort analysis': 'yes', 'Integrations': 'yes' } },
+
+            // Email Marketing
+            'Mailchimp': { industry: 'email_marketing', ratings: { 'Drag-and-drop editor': 'yes', 'Email automation': 'yes', 'Segmentation': 'yes', 'A/B testing': 'yes', 'Landing pages': 'yes', 'Signup forms': 'yes', 'Analytics & reporting': 'yes', 'Personalization': 'yes', 'Transactional email': 'yes', 'SMS marketing': 'yes', 'CRM integration': 'partial', 'Template library': 'yes', 'List management': 'yes', 'Deliverability tools': 'yes', 'API access': 'yes' } },
+            'ConvertKit': { industry: 'email_marketing', ratings: { 'Drag-and-drop editor': 'partial', 'Email automation': 'yes', 'Segmentation': 'yes', 'A/B testing': 'partial', 'Landing pages': 'yes', 'Signup forms': 'yes', 'Analytics & reporting': 'yes', 'Personalization': 'yes', 'Transactional email': 'no', 'SMS marketing': 'no', 'CRM integration': 'partial', 'Template library': 'partial', 'List management': 'yes', 'Deliverability tools': 'yes', 'API access': 'yes' } },
+            'Brevo': { industry: 'email_marketing', ratings: { 'Drag-and-drop editor': 'yes', 'Email automation': 'yes', 'Segmentation': 'yes', 'A/B testing': 'yes', 'Landing pages': 'yes', 'Signup forms': 'yes', 'Analytics & reporting': 'yes', 'Personalization': 'yes', 'Transactional email': 'yes', 'SMS marketing': 'yes', 'CRM integration': 'yes', 'Template library': 'yes', 'List management': 'yes', 'Deliverability tools': 'yes', 'API access': 'yes' } },
+            'ActiveCampaign': { industry: 'email_marketing', ratings: { 'Drag-and-drop editor': 'yes', 'Email automation': 'yes', 'Segmentation': 'yes', 'A/B testing': 'yes', 'Landing pages': 'yes', 'Signup forms': 'yes', 'Analytics & reporting': 'yes', 'Personalization': 'yes', 'Transactional email': 'partial', 'SMS marketing': 'yes', 'CRM integration': 'yes', 'Template library': 'yes', 'List management': 'yes', 'Deliverability tools': 'yes', 'API access': 'yes' } },
+
+            // Cloud Storage
+            'Google Drive': { industry: 'cloud_storage', ratings: { 'File storage': 'yes', 'File sharing': 'yes', 'Real-time collaboration': 'yes', 'Version history': 'yes', 'Offline access': 'yes', 'Search': 'yes', 'Third-party integrations': 'yes', 'Mobile app': 'yes', 'Admin controls': 'yes', 'SSO / SAML': 'yes', 'API access': 'yes', 'E-signatures': 'no', 'Commenting': 'yes', 'Encryption at rest': 'yes', 'Compliance certifications': 'yes' } },
+            'Dropbox': { industry: 'cloud_storage', ratings: { 'File storage': 'yes', 'File sharing': 'yes', 'Real-time collaboration': 'partial', 'Version history': 'yes', 'Offline access': 'yes', 'Search': 'yes', 'Third-party integrations': 'yes', 'Mobile app': 'yes', 'Admin controls': 'yes', 'SSO / SAML': 'yes', 'API access': 'yes', 'E-signatures': 'yes', 'Commenting': 'yes', 'Encryption at rest': 'yes', 'Compliance certifications': 'yes' } },
+            'OneDrive': { industry: 'cloud_storage', ratings: { 'File storage': 'yes', 'File sharing': 'yes', 'Real-time collaboration': 'yes', 'Version history': 'yes', 'Offline access': 'yes', 'Search': 'yes', 'Third-party integrations': 'partial', 'Mobile app': 'yes', 'Admin controls': 'yes', 'SSO / SAML': 'yes', 'API access': 'yes', 'E-signatures': 'no', 'Commenting': 'yes', 'Encryption at rest': 'yes', 'Compliance certifications': 'yes' } },
+            'Box': { industry: 'cloud_storage', ratings: { 'File storage': 'yes', 'File sharing': 'yes', 'Real-time collaboration': 'partial', 'Version history': 'yes', 'Offline access': 'partial', 'Search': 'yes', 'Third-party integrations': 'yes', 'Mobile app': 'yes', 'Admin controls': 'yes', 'SSO / SAML': 'yes', 'API access': 'yes', 'E-signatures': 'yes', 'Commenting': 'yes', 'Encryption at rest': 'yes', 'Compliance certifications': 'yes' } },
+
+            // Video
+            'Zoom': { industry: 'video', ratings: { 'Video calls': 'yes', 'Screen sharing': 'yes', 'Recording': 'yes', 'Breakout rooms': 'yes', 'Virtual backgrounds': 'yes', 'Live captions': 'yes', 'Whiteboard': 'yes', 'Calendar integration': 'yes', 'Waiting room': 'yes', 'Chat in meeting': 'yes', 'Webinar mode': 'yes', 'Mobile app': 'yes', 'SSO / SAML': 'yes', 'AI summaries': 'yes', 'Noise cancellation': 'yes' } },
+            'Google Meet': { industry: 'video', ratings: { 'Video calls': 'yes', 'Screen sharing': 'yes', 'Recording': 'yes', 'Breakout rooms': 'yes', 'Virtual backgrounds': 'yes', 'Live captions': 'yes', 'Whiteboard': 'partial', 'Calendar integration': 'yes', 'Waiting room': 'yes', 'Chat in meeting': 'yes', 'Webinar mode': 'partial', 'Mobile app': 'yes', 'SSO / SAML': 'yes', 'AI summaries': 'yes', 'Noise cancellation': 'yes' } },
+            'Loom': { industry: 'video', ratings: { 'Video calls': 'no', 'Screen sharing': 'yes', 'Recording': 'yes', 'Breakout rooms': 'no', 'Virtual backgrounds': 'yes', 'Live captions': 'yes', 'Whiteboard': 'no', 'Calendar integration': 'no', 'Waiting room': 'no', 'Chat in meeting': 'no', 'Webinar mode': 'no', 'Mobile app': 'yes', 'SSO / SAML': 'yes', 'AI summaries': 'yes', 'Noise cancellation': 'no' } },
+        };
+
+        // ═══════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════
+
+        let state = {
+            competitors: ['Your Product'],
+            features: [],
+            ratings: {},
+            detectedIndustry: null,
+        };
+
+        function key(feature, comp) { return `${feature}|${comp}`; }
+
+        // ═══════════════════════════════════════════════
+        // SMART ADD — detect industry & auto-populate
+        // ═══════════════════════════════════════════════
+
+        function addCompetitorSmart(name) {
+            if (state.competitors.includes(name)) return;
+            state.competitors.push(name);
+
+            const known = COMPANY_DB[name];
+            if (!known) { render(); return; }
+
+            // Detect / confirm industry
+            const ind = known.industry;
+            if (!state.detectedIndustry) {
+                state.detectedIndustry = ind;
+                // Auto-populate features for this industry
+                const indFeatures = INDUSTRIES[ind].features;
+                indFeatures.forEach(f => {
+                    if (!state.features.includes(f)) state.features.push(f);
+                });
+            }
+
+            // Fill in known ratings for this company
+            if (known.ratings) {
+                Object.entries(known.ratings).forEach(([feature, rating]) => {
+                    if (state.features.includes(feature)) {
+                        state.ratings[key(feature, name)] = rating;
+                    }
+                });
+            }
+
+            updateIndustryBadge();
+            render();
+        }
+
+        function updateIndustryBadge() {
+            const badge = document.getElementById('industryBadge');
+            if (!state.detectedIndustry) { badge.style.display = 'none'; return; }
+            const ind = INDUSTRIES[state.detectedIndustry];
+            document.getElementById('industryIcon').textContent = ind.icon;
+            document.getElementById('industryName').textContent = ind.name;
+            document.getElementById('industryFeatureCount').textContent = `${state.features.length} features auto-detected`;
+            badge.style.display = 'block';
+        }
+
+        // ═══════════════════════════════════════════════
+        // AUTOCOMPLETE
+        // ═══════════════════════════════════════════════
+
+        function setupAutocomplete() {
+            const input = document.getElementById('modalInput');
+            const dropdown = document.getElementById('autocomplete');
+
+            input.addEventListener('input', () => {
+                if (modalType !== 'competitor') { dropdown.style.display = 'none'; return; }
+                const q = input.value.trim().toLowerCase();
+                if (q.length < 1) { dropdown.style.display = 'none'; return; }
+
+                const matches = Object.keys(COMPANY_DB).filter(name =>
+                    name.toLowerCase().includes(q) && !state.competitors.includes(name)
+                ).slice(0, 8);
+
+                if (matches.length === 0) {
+                    dropdown.style.display = 'none';
+                    document.getElementById('modalHint').style.display = 'block';
+                    document.getElementById('modalHint').textContent = 'Company not in database — will be added without auto-ratings.';
+                    return;
+                }
+
+                document.getElementById('modalHint').style.display = 'none';
+                dropdown.style.display = 'block';
+                dropdown.innerHTML = matches.map(name => {
+                    const ind = INDUSTRIES[COMPANY_DB[name].industry];
+                    return `<div style="padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);font-size:13px;transition:background 0.15s;"
+                    onmouseover="this.style.background='var(--surface-3)'" onmouseout="this.style.background=''"
+                    onclick="selectAutocomplete('${name}')">
+                    <span style="font-weight:500;color:var(--text)">${name}</span>
+                    <span style="font-size:11px;color:var(--text-dim)">${ind.icon} ${ind.name}</span>
+                </div>`;
+                }).join('');
+            });
+        }
+
+        function selectAutocomplete(name) {
+            document.getElementById('modalInput').value = name;
+            document.getElementById('autocomplete').style.display = 'none';
+            document.getElementById('modalHint').style.display = 'none';
+            submitModal();
+        }
+
+        // ═══════════════════════════════════════════════
+        // RENDER
+        // ═══════════════════════════════════════════════
+
+        function render() {
+            const table = document.getElementById('matrix');
+            if (state.features.length === 0 && state.competitors.length <= 1) {
+                table.innerHTML = '';
+                return;
+            }
+
+            let html = '<thead><tr><th>Feature</th>';
+            state.competitors.forEach((c, i) => {
+                const known = COMPANY_DB[c];
+                const badge = known ? `<span style="font-size:9px;background:var(--accent-soft);color:var(--accent-hover);padding:1px 5px;border-radius:3px;margin-left: 4px;">AUTO</span>` : '';
+                html += `<th><div class="comp-header">
+                <span class="comp-name">${c}${i === 0 ? ' ⭐' : ''}${i > 0 ? badge : ''}</span>
+                ${i > 0 ? `<button class="comp-remove" onclick="removeComp(${i})">remove</button>` : ''}
+            </div></th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            state.features.forEach((f, fi) => {
+                html += `<tr><td><div class="feature-name">
+                <button class="remove-feature" onclick="removeFeature(${fi})" title="Remove">×</button>
+                ${f}
+            </div></td>`;
+                state.competitors.forEach(c => {
+                    const v = state.ratings[key(f, c)] || null;
+                    const esc = (s) => s.replace(/'/g, "\\'");
+                    html += `<td><div class="rating-cell">
+                    <button class="rating-btn yes ${v === 'yes' ? 'active' : ''}" onclick="rate('${esc(f)}','${esc(c)}','yes')" title="Has it">✅</button>
+                    <button class="rating-btn partial ${v === 'partial' ? 'active' : ''}" onclick="rate('${esc(f)}','${esc(c)}','partial')" title="Partial">🟡</button>
+                    <button class="rating-btn no ${v === 'no' ? 'active' : ''}" onclick="rate('${esc(f)}','${esc(c)}','no')" title="Missing">❌</button>
+                </div></td>`;
+                });
+                html += '</tr>';
+            });
+
+            if (state.features.length > 0) {
+                html += '<tr class="score-row"><td>Score</td>';
+                state.competitors.map(c => {
+                    let s = 0, total = state.features.length;
+                    state.features.forEach(f => {
+                        const v = state.ratings[key(f, c)];
+                        if (v === 'yes') s += 1;
+                        else if (v === 'partial') s += 0.5;
+                    });
+                    return { score: s, total, pct: total > 0 ? Math.round(s / total * 100) : 0 };
+                }).forEach(s => {
+                    const color = s.pct >= 75 ? 'var(--green)' : s.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+                    html += `<td><div>${s.score}/${s.total} (${s.pct}%)</div>
+                    <div class="score-bar"><div class="score-fill" style="width:${s.pct}%;background:${color}"></div></div></td>`;
+                });
+                html += '</tr>';
+            }
+
+            html += '</tbody>';
+            table.innerHTML = html;
+            updateGapAnalysis();
+            saveState();
+        }
+
+        function rate(feature, comp, value) {
+            const k = key(feature, comp);
+            state.ratings[k] = state.ratings[k] === value ? null : value;
+            render();
+        }
+
+        function removeComp(i) {
+            const c = state.competitors[i];
+            state.features.forEach(f => delete state.ratings[key(f, c)]);
+            state.competitors.splice(i, 1);
+            render();
+        }
+
+        function removeFeature(i) {
+            const f = state.features[i];
+            state.competitors.forEach(c => delete state.ratings[key(f, c)]);
+            state.features.splice(i, 1);
+            render();
+        }
+
+        // ═══════════════════════════════════════════════
+        // MODAL
+        // ═══════════════════════════════════════════════
+
+        let modalType = 'competitor';
+        function showModal(type) {
+            modalType = type;
+            document.getElementById('modalTitle').textContent = type === 'competitor' ? 'Add Competitor' : 'Add Feature';
+            document.getElementById('modalInput').placeholder = type === 'competitor' ? 'Start typing... e.g., Slack, Figma, Salesforce' : 'e.g., Real-time sync';
+            document.getElementById('modal').classList.add('show');
+            document.getElementById('modalInput').value = '';
+            document.getElementById('autocomplete').style.display = 'none';
+            document.getElementById('modalHint').style.display = 'none';
+            setTimeout(() => document.getElementById('modalInput').focus(), 100);
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            document.getElementById('autocomplete').style.display = 'none';
+        }
+        function submitModal() {
+            const val = document.getElementById('modalInput').value.trim();
+            if (!val) return;
+            if (modalType === 'competitor') {
+                addCompetitorSmart(val);
+            } else {
+                if (!state.features.includes(val)) state.features.push(val);
+                render();
+            }
+            closeModal();
+        }
+        document.getElementById('modalInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitModal(); });
+        document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+        // ═══════════════════════════════════════════════
+        // GAP ANALYSIS
+        // ═══════════════════════════════════════════════
+
+        function updateGapAnalysis() {
+            const list = document.getElementById('gapList');
+            if (state.features.length === 0 || state.competitors.length < 2) {
+                list.innerHTML = '<div class="gap-empty">Add at least 2 competitors and some features to see analysis</div>';
+                return;
+            }
+            const yours = state.competitors[0];
+            const gaps = [];
+
+            state.features.forEach(f => {
+                const yourRating = state.ratings[key(f, yours)] || null;
+                const othersHave = state.competitors.slice(1).filter(c => state.ratings[key(f, c)] === 'yes');
+                const othersMissing = state.competitors.slice(1).filter(c => {
+                    const r = state.ratings[key(f, c)]; return !r || r === 'no';
+                });
+
+                if (yourRating === 'yes' && othersMissing.length === state.competitors.length - 1) {
+                    gaps.push({ type: 'opportunity', text: `<span class="gap-highlight">${f}</span> — your competitive advantage. No competitor has this.` });
+                } else if (yourRating === 'yes' && othersMissing.length > 0) {
+                    gaps.push({ type: 'opportunity', text: `<span class="gap-highlight">${f}</span> — ${othersMissing.join(', ')} ${othersMissing.length === 1 ? 'is' : 'are'} missing this. Leverage in positioning.` });
+                } else if ((!yourRating || yourRating === 'no') && othersHave.length > 0) {
+                    gaps.push({ type: 'risk', text: `<span class="gap-highlight">${f}</span> — you're missing this, but ${othersHave.join(', ')} ${othersHave.length === 1 ? 'has' : 'have'} it. Consider prioritizing.` });
+                } else if (yourRating === 'partial' && othersHave.length > 0) {
+                    gaps.push({ type: 'risk', text: `<span class="gap-highlight">${f}</span> — you partially support this, ${othersHave.join(', ')} fully ${othersHave.length === 1 ? 'supports' : 'support'} it.` });
+                }
+            });
+
+            if (gaps.length === 0) {
+                list.innerHTML = '<div class="gap-empty">Rate more features to see insights</div>';
+                return;
+            }
+            list.innerHTML = gaps.map(g => `
+            <div class="gap-item">
+                <div class="gap-dot ${g.type}"></div>
+                <span class="gap-text">${g.text}</span>
+            </div>
+        `).join('');
+        }
+
+        // ═══════════════════════════════════════════════
+        // UTILITIES
+        // ═══════════════════════════════════════════════
+
+        function exportCSV() {
+            let csv = 'Feature,' + state.competitors.join(',') + '\n';
+            state.features.forEach(f => {
+                const row = ['"' + f + '"'];
+                state.competitors.forEach(c => {
+                    const v = state.ratings[key(f, c)];
+                    row.push(v === 'yes' ? 'Yes' : v === 'partial' ? 'Partial' : v === 'no' ? 'No' : '');
+                });
+                csv += row.join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'competitive-matrix.csv';
+            a.click();
+        }
+
+        function clearAll() {
+            localStorage.removeItem('featureMatrix');
+            state = { competitors: ['Your Product'], features: [], ratings: {}, detectedIndustry: null };
+            updateIndustryBadge();
+            render();
+        }
+
+        function saveState() { localStorage.setItem('featureMatrix', JSON.stringify(state)); }
+        function loadState() {
+            const saved = localStorage.getItem('featureMatrix');
+            if (saved) {
+                state = JSON.parse(saved);
+                if (!state.detectedIndustry) state.detectedIndustry = null;
+                updateIndustryBadge();
+                render();
+            }
+        }
+
+        // ═══════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════
+
+        setupAutocomplete();
+        loadState();
+        if (state.features.length === 0) render();
+    </script>
+</body>
+
+</html>
