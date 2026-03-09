@@ -2,7 +2,7 @@
 
 Build interactive competitive analysis matrices. Compare products, rate features, and identify market gaps instantly.
 
-**[Live Demo →](#)** *(add your GitHub Pages URL after deploying)*
+**[Live Demo →](https://prithvi-25.github.io/feature-matrix/)**
 
 ## Screenshot
 
@@ -29,4 +29,4 @@ Every PM does competitive analysis, but it usually lives in a messy spreadsheet.
 
 ## Author
 
-**Prithvi** — [Portfolio](#)
+**Prithvi** — [Portfolio](https://prithvi-25.github.io/)
